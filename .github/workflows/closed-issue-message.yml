@@ -12,6 +12,7 @@ jobs:
   php-application-build:
     runs-on: ubuntu-latest
     name: Run build with anomalies
+
     steps:
       # ============= InvisiRisk Setup =============
       - name: Setup PSE
@@ -19,15 +20,28 @@ jobs:
         with:
           app_token: ${{secrets.IR_API_KEY}}
       # ============= InvisiRisk Setup End =============
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.2"
+          php-version: "8.3"
+          coverage: none
           
-      - name: Install project dependencies
-        run: composer install
+      - name: Validate composer.json
+        run: composer validate --no-check-publish
+
+      - name: Install dependencies (allow legacy insecure packages)
+        run: |
+          composer config --global audit.block-insecure false
+          composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Show installed PHP version
+        run: php -v
+
+      - name: Show Composer version
+        run: composer --version
       # ============= InvisiRisk Cleanup =============
       - name: Cleanup PSE
         if: always()
