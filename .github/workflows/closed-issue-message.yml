@@ -1,20 +1,24 @@
-name: Closed Issue Message
+name: php build xx IR
+
 on:
-    issues:
-       types: [closed]
+  workflow_dispatch:
+
 permissions:
-  issues: write
+  checks: write
+  contents: write
+  packages: read
 
 jobs:
-    auto_comment:
-        runs-on: ubuntu-latest
-        steps:
-        - uses: aws-actions/closed-issue-message@v1
-          with:
-            # These inputs are both required
-            repo-token: "${{ secrets.GITHUB_TOKEN }}"
-            message: |
-                     ### ⚠️COMMENT VISIBILITY WARNING⚠️ 
-                     Comments on closed issues are hard for our team to see. 
-                     If you need more assistance, please either tag a team member or open a new issue that references this one. 
-                     If you wish to keep having a conversation with other community members under this issue feel free to do so.
+  php-application-build:
+    runs-on: ubuntu-latest
+    name: Run build with anomalies
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          
+      - name: Install project dependencies
+        run: composer install
